@@ -4,7 +4,7 @@ export const authSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String },
     password: { type: String },
-    avatar: { type: String }, // profile picture URL
+    avatar: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
 authSchema.pre("save", async function (next) {
