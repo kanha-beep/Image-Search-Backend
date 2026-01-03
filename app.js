@@ -1,21 +1,22 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import AuthRoutes from "./routes/AuthRoutes.js"
 import ImagesRoutes from "./routes/ImagesRoutes.js"
 import { connectDB } from "./db.js"
 import cookieParser from "cookie-parser";
-dotenv.config();
 const app = express();
-
+const allowedOrigins = process.env.CLIENT_URL.split(",")
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
 }));
 connectDB()
+app.set("trust proxy", 1);
 app.use("/uploads", express.static("uploads"));
-app.use(express.json());
 app.use(cookieParser())
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", AuthRoutes)
 app.use("/api/images", ImagesRoutes)

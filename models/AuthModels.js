@@ -4,6 +4,11 @@ export const authSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String },
     password: { type: String },
+    roles: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
+    },
     avatar: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
