@@ -2,7 +2,7 @@ import { ExpressError } from "../middlewares/ExpressError.js";
 import { Image } from "../schemas/ImagesSchema.js"
 import { Search } from "../schemas/SearchSchema.js"
 export const newImage = async (req, res, next) => {
-    // console.log("files recd: ", req.file);
+    console.log("files recd: ", req.file);
     // console.log("user: ", req.user)
     const { title } = req.body;
     const image = await Image.create({ title: title, imageUrl: req.file.filename, user: req.user._id })
