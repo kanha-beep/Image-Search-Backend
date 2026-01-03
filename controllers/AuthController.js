@@ -41,7 +41,7 @@ export const login = async (req, res, next) => {
         });
 };
 export const currentUser = async (req, res, next) => {
-    const user = await user.findById(req.user._id)
+    const user = await User.findById(req.user._id)
     if (!user) return next(new ExpressError(404, "User not found"));
     console.log("user found: ", user)
     res.json(user)
