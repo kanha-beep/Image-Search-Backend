@@ -1,11 +1,40 @@
 import { ExpressError } from "../middlewares/ExpressError.js";
 import { Image } from "../schemas/ImagesSchema.js"
 import { Search } from "../schemas/SearchSchema.js"
+import cloudinary from "../config/cloudinary.js"
 export const newImage = async (req, res, next) => {
     console.log("files recd: ", req.file);
     // console.log("user: ", req.user)
     const { title } = req.body;
-    const image = await Image.create({ title: title, imageUrl: req.file.filename, user: req.user._id })
+    let imageUrl = null;
+    console.log("Image upload starts");
+    if (req.file) {
+        // console.log("1")
+        // const b64 = Buffer.from(req.file.buffer).toString("base64");
+        // console.log("2")
+        // const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+        // console.log("3")
+        try {
+            const result = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: "products" },
+                    (err, result) => {
+                        if (err) reject(err);
+                        else resolve(result);
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+            console.log("resilt: ", result)
+            imageUrl = result.secure_url;
+            console.log("Image uploaded successfully:", imageUrl);
+        } catch (error) {
+            console.error("Error uploading image to Cloudinary:", error);
+            return next(new ExpressError("Error uploading image", 500));
+        }
+
+    }
+    const image = await Image.create({ title: title, imageUrl: imageUrl, user: req.user._id })
     if (!image) return next(new ExpressError(401, "No image uploaded"));
     // console.log("image uploaded: ", image);
     res.json(image)
@@ -49,11 +78,26 @@ export const updateImages = async (req, res, next) => {
     const images = await Image.findById(id)
     if (!images) return next(new ExpressError(402, "no image to update"))
     // console.log('got image to update: ', images)
-    const updated = await Image.findByIdAndUpdate(
-        id,
-        { imageUrl: req.file.filename },
-        { new: true }
-    );
+    // const updated = await Image.findByIdAndUpdate(
+    //     id,
+    //     { imageUrl: req.file.filename },
+    //     { new: true }
+    // );
+        if (req.file) {
+            const result = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: "products" },
+                    (err, result) => {
+                        if (err) reject(err);
+                        else resolve(result);
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+
+            images.imageUrl = result.secure_url;
+        }
+        await images.save();
     // console.log("image updated: ", updated)
     res.json(updated);
 }

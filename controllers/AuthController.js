@@ -33,7 +33,7 @@ export const login = async (req, res, next) => {
     if (!isMatch) return next(new ExpressError(404, "Invalid credentials"))
     const token = genToken(user);
     // console.log("user logged in: ", user)
-    res.status(200).cookie("cookie", token, { httpOnly: true })
+    res.status(200).cookie("cookie", token, { httpOnly: true, secure: isProd, sameSite: isProd ? "none" : "lax" })
         .status(200).json({
             message: "Login successful",
             token,
@@ -42,6 +42,7 @@ export const login = async (req, res, next) => {
 };
 export const currentUser = async (req, res, next) => {
     const user = await User.findById(req.user.id)
+    console.log("current user: ", user)
     if (!user) return next(new ExpressError(404, "User not found"));
     console.log("user found: ", user)
     res.json(user)
