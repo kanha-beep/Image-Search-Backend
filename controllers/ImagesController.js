@@ -67,7 +67,7 @@ export const allImages = async (req, res, next) => {
 }
 export const singleImages = async (req, res, next) => {
     // console.log("single starts", req.params.id)
-    const images = await Image.findById(req.params.id);
+    const images = await Image.findById(req.params.id).populate("user");
     // console.log("single image: ", images)
     if (!images) return next(new ExpressError(401, "No single image found"));
     res.json(images)
